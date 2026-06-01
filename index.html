@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp Leads Dashboard — Nexiu</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #1e2533;
+      --card: #252d3d;
+      --header: #2e3a50;
+      --accent1: #4e9af1;
+      --accent2: #2ec4b6;
+      --accent3: #ff6b6b;
+      --accent4: #ffe66d;
+      --accent5: #a8dadc;
+      --text: #ffffff;
+      --muted: #b0b8c8;
+      --radius: 10px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--header);
+      padding: 20px 28px;
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      border-bottom: 3px solid var(--accent1);
+    }
+
+    header h1 { font-size: 22px; font-weight: 700; }
+    header span { font-size: 13px; color: var(--muted); }
+
+    .container { padding: 24px 28px; max-width: 1600px; margin: 0 auto; }
+
+    /* KPI cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 700px)  { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .kpi-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 16px 14px;
+      border-top: 4px solid var(--accent1);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .kpi-card .label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .kpi-card .value { font-size: 28px; font-weight: 700; line-height: 1.1; }
+    .kpi-card .sub   { font-size: 11px; color: var(--muted); }
+
+    /* Chart grid */
+    .chart-grid {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .grid-3 { grid-template-columns: 1.4fr 1.2fr 1fr; }
+    .grid-3-wide { grid-template-columns: 1.2fr 1.2fr 0.8fr; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+
+    @media (max-width: 1100px) {
+      .grid-3, .grid-3-wide, .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .chart-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 18px 14px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-card h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .chart-card p {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 240px;
+    }
+
+    .chart-wrap canvas { width: 100% !important; }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 20px 0 28px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>WhatsApp Leads Dashboard &nbsp;·&nbsp; Nexiu Operations</h1>
+  <span>Weeks 6–22 &nbsp;|&nbsp; Jan–May 2026 &nbsp;|&nbsp; 39,173 leads</span>
+</header>
+
+<div class="container">
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi-card" style="border-top-color:var(--accent1)">
+      <div class="label">Total Leads</div>
+      <div class="value" style="color:var(--accent1)">39,173</div>
+      <div class="sub">All WhatsApp conversations</div>
+    </div>
+    <div class="kpi-card" style="border-top-color:var(--accent2)">
+      <div class="label">Completed</div>
+      <div class="value" style="color:var(--accent2)">16,960</div>
+      <div class="sub">43.3% conversion rate</div>
+    </div>
+    <div class="kpi-card" style="border-top-color:var(--accent3)">
+      <div class="label">Abandoned</div>
+      <div class="value" style="color:var(--accent3)">8,017</div>
+      <div class="sub">20.5% of total leads</div>
+    </div>
+    <div class="kpi-card" style="border-top-color:var(--accent4)">
+      <div class="label">Follow-ups Sent</div>
+      <div class="value" style="color:var(--accent4)">6,445</div>
+      <div class="sub">of 39,173 total leads</div>
+    </div>
+    <div class="kpi-card" style="border-top-color:var(--accent5)">
+      <div class="label">Responded After F/U</div>
+      <div class="value" style="color:var(--accent5)">773</div>
+      <div class="sub">12.0% recovery rate</div>
+    </div>
+  </div>
+
+  <!-- ROW 1 -->
+  <div class="chart-grid grid-3">
+    <div class="chart-card">
+      <h2>Weekly Lead Volume by Outcome</h2>
+      <p>Stacked by final state — Weeks 6–21</p>
+      <div class="chart-wrap"><canvas id="c1"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h2>Weekly Conversion Rate</h2>
+      <p>% of incoming leads reaching "completed" state</p>
+      <div class="chart-wrap"><canvas id="c2"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h2>Lead State Distribution</h2>
+      <p>All-time breakdown across all 39k leads</p>
+      <div class="chart-wrap"><canvas id="c3"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="chart-grid grid-3">
+    <div class="chart-card">
+      <h2>Meta Ads Weekly Spend (USD)</h2>
+      <p>Budget deployed per week across campaign</p>
+      <div class="chart-wrap"><canvas id="c4"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h2>Meta Ads: Reach vs Impressions</h2>
+      <p>Unique reach vs total impression volume per week</p>
+      <div class="chart-wrap"><canvas id="c5"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h2>Follow-up Recovery Rate</h2>
+      <p>% of followed-up leads who re-engaged, by week</p>
+      <div class="chart-wrap"><canvas id="c6"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ROW 3 -->
+  <div class="chart-grid grid-2">
+    <div class="chart-card">
+      <h2>Lead Drop-off by Funnel State</h2>
+      <p>Where candidates abandoned before completing</p>
+      <div class="chart-wrap" style="min-height:180px"><canvas id="c7"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h2>Meta Ads: Ad Frequency by Week</h2>
+      <p>Avg impressions per unique user reached</p>
+      <div class="chart-wrap" style="min-height:180px"><canvas id="c8"></canvas></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Source: wa_leads_19_05_26.xlsx &nbsp;·&nbsp; Generated 2026-06-01 &nbsp;·&nbsp; Nexiu Operations
+</footer>
+
+<script>
+const D = {"kpis":{"total":39173,"completed":16960,"abandoned":8017,"followups":6445,"responded":773,"conv_rate":"43.3%","fu_rate":"12.0%","abandon_pct":"20.5%"},"weekly":{"weeks":["Wk 6","Wk 7","Wk 8","Wk 9","Wk 10","Wk 11","Wk 12","Wk 13","Wk 14","Wk 15","Wk 16","Wk 17","Wk 18","Wk 19","Wk 20","Wk 21"],"total_leads":[297,850,1205,1626,2247,3510,4740,4162,1933,3266,3460,4156,2805,1968,2479,469],"completed":[134,402,395,670,1022,1432,1857,1730,726,1152,1463,1796,1459,1113,1376,233],"abandoned":[26,64,100,99,114,203,311,209,104,850,1506,1712,1150,707,839,23],"awaiting_interest":[69,202,455,403,523,1103,1604,1365,607,450,11,20,7,5,4,131],"not_eligible":[6,10,17,59,92,87,130,106,121,225,127,147,27,11,6,2],"followup_sent":[8,16,23,20,36,37,87,75,49,746,1323,1493,1020,614,727,171],"responded":[0,3,5,2,3,7,12,8,2,91,131,200,121,79,99,10],"conv_rate":[45.1,47.3,32.8,41.2,45.5,40.8,39.2,41.6,37.6,35.3,42.3,43.2,52.0,56.6,55.5,49.7],"fu_rate":[0.0,18.8,21.7,10.0,8.3,18.9,13.8,10.7,4.1,12.2,9.9,13.4,11.9,12.9,13.6,5.8]},"state_dist":{"labels":["completed","abandoned","awaiting_interest","initial","browsing_jobs","not_eligible","awaiting_name","error","viewing_job","awaiting_email"],"values":[16960,8017,6959,2693,1516,1173,1158,244,230,223]},"dropoff":{"labels":["awaiting_interest","browsing_jobs","awaiting_name","awaiting_email","viewing_job"],"values":[4316,905,784,143,45]},"meta":{"weeks":["Wk 1","Wk 2","Wk 3","Wk 4","Wk 5","Wk 6","Wk 7","Wk 8","Wk 9","Wk 10","Wk 11","Wk 12","Wk 13","Wk 14","Wk 15","Wk 16","Wk 17","Wk 18","Wk 19","Wk 20","Wk 21","Wk 22"],"reach":[155298,249615,222393,225612,349864,257650,229516,268111,229335,197647,144486,161784,123458,122565,143594,177349,181513,240362,192291,211590,265668,73399],"impressions":[373374,620526,563464,559284,881673,664277,588053,755091,635901,514692,394511,448648,337631,300920,343439,438818,452913,445156,359713,422501,593182,112276],"frequency":[2.4,2.49,2.53,2.48,2.52,2.58,2.56,2.82,2.77,2.6,2.73,2.77,2.73,2.46,2.39,2.47,2.5,1.85,1.87,2.0,2.23,1.53],"spend":[565.03,1010.95,1211.01,1209.13,1639.01,1688.21,1472.87,1805.56,1667.76,1321.64,1088.92,1259.34,911.96,717.25,944.51,1460.65,1595.68,1279.74,1128.9,1528.54,2196.0,425.54]}};
+
+const defaults = {
+  color: '#b0b8c8',
+  plugins: {
+    legend: { labels: { color: '#b0b8c8', font: { family: 'Arial', size: 11 } } },
+    tooltip: { backgroundColor: '#2e3a50', titleColor: '#fff', bodyColor: '#b0b8c8' }
+  },
+  scales: {
+    x: { ticks: { color: '#b0b8c8', font: { family: 'Arial', size: 10 } }, grid: { color: '#ffffff0d' } },
+    y: { ticks: { color: '#b0b8c8', font: { family: 'Arial', size: 10 } }, grid: { color: '#ffffff12' } }
+  }
+};
+
+function mk(id, type, data, opts = {}) {
+  const ctx = document.getElementById(id);
+  return new Chart(ctx, {
+    type,
+    data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 600 },
+      ...defaults,
+      ...opts,
+      plugins: { ...defaults.plugins, ...(opts.plugins || {}) },
+      scales: type === 'pie' || type === 'doughnut' ? {} : { ...defaults.scales, ...(opts.scales || {}) }
+    }
+  });
+}
+
+const W = D.weekly;
+const M = D.meta;
+
+// C1 — stacked bar: weekly lead volume
+mk('c1', 'bar', {
+  labels: W.weeks,
+  datasets: [
+    { label: 'Completed',         data: W.completed,         backgroundColor: '#2ec4b6' },
+    { label: 'Abandoned',         data: W.abandoned,         backgroundColor: '#ff6b6b' },
+    { label: 'Awaiting Interest', data: W.awaiting_interest, backgroundColor: '#4e9af1' },
+    { label: 'Not Eligible',      data: W.not_eligible,      backgroundColor: '#ffe66d' },
+  ]
+}, {
+  plugins: { legend: { position: 'bottom', labels: { color: '#b0b8c8', font: { family: 'Arial', size: 10 } } } },
+  scales: {
+    x: { stacked: true, ...defaults.scales.x },
+    y: { stacked: true, ...defaults.scales.y }
+  }
+});
+
+// C2 — line: conversion rate
+mk('c2', 'line', {
+  labels: W.weeks,
+  datasets: [{
+    label: 'Conversion Rate (%)',
+    data: W.conv_rate,
+    borderColor: '#4e9af1',
+    backgroundColor: '#4e9af122',
+    borderWidth: 2.5,
+    fill: true,
+    tension: 0.4,
+    pointRadius: 3
+  }]
+}, {
+  plugins: { legend: { display: false } },
+  scales: {
+    x: defaults.scales.x,
+    y: { ...defaults.scales.y, ticks: { ...defaults.scales.y.ticks, callback: v => v + '%' } }
+  }
+});
+
+// C3 — doughnut: state dist
+mk('c3', 'doughnut', {
+  labels: D.state_dist.labels,
+  datasets: [{
+    data: D.state_dist.values,
+    backgroundColor: ['#2ec4b6','#ff6b6b','#4e9af1','#a8dadc','#ffe66d','#f4a261','#e9c46a','#c77dff','#80b918','#adb5bd'],
+    borderWidth: 1,
+    borderColor: '#252d3d'
+  }]
+}, {
+  plugins: {
+    legend: { position: 'right', labels: { color: '#b0b8c8', font: { family: 'Arial', size: 10 }, boxWidth: 12 } },
+    tooltip: { ...defaults.plugins.tooltip, callbacks: {
+      label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} (${(ctx.parsed / D.kpis.total * 100).toFixed(1)}%)`
+    }}
+  }
+});
+
+// C4 — bar: meta spend
+mk('c4', 'bar', {
+  labels: M.weeks,
+  datasets: [{
+    label: 'Spend (USD)',
+    data: M.spend,
+    backgroundColor: '#ffe66d',
+    borderRadius: 3
+  }]
+}, {
+  plugins: { legend: { display: false } },
+  scales: {
+    x: defaults.scales.x,
+    y: { ...defaults.scales.y, ticks: { ...defaults.scales.y.ticks, callback: v => '$' + v.toLocaleString() } }
+  }
+});
+
+// C5 — line: reach vs impressions
+mk('c5', 'line', {
+  labels: M.weeks,
+  datasets: [
+    { label: 'Reach', data: M.reach, borderColor: '#4e9af1', backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.4, pointRadius: 2 },
+    { label: 'Impressions', data: M.impressions, borderColor: '#ff6b6b', backgroundColor: 'transparent', borderWidth: 2.5, tension: 0.4, pointRadius: 2 }
+  ]
+}, {
+  plugins: { legend: { position: 'bottom', labels: { color: '#b0b8c8', font: { family: 'Arial', size: 10 } } } },
+  scales: {
+    x: defaults.scales.x,
+    y: { ...defaults.scales.y, ticks: { ...defaults.scales.y.ticks, callback: v => (v/1000).toFixed(0) + 'k' } }
+  }
+});
+
+// C6 — line: followup recovery rate
+mk('c6', 'line', {
+  labels: W.weeks,
+  datasets: [{
+    label: 'F/U Response Rate (%)',
+    data: W.fu_rate,
+    borderColor: '#2ec4b6',
+    backgroundColor: '#2ec4b622',
+    borderWidth: 2.5,
+    fill: true,
+    tension: 0.4,
+    pointRadius: 3
+  }]
+}, {
+  plugins: { legend: { display: false } },
+  scales: {
+    x: defaults.scales.x,
+    y: { ...defaults.scales.y, ticks: { ...defaults.scales.y.ticks, callback: v => v + '%' } }
+  }
+});
+
+// C7 — horizontal bar: dropoff
+mk('c7', 'bar', {
+  labels: D.dropoff.labels,
+  datasets: [{
+    label: 'Leads dropped off',
+    data: D.dropoff.values,
+    backgroundColor: '#ff6b6b',
+    borderRadius: 3
+  }]
+}, {
+  indexAxis: 'y',
+  plugins: { legend: { display: false } },
+  scales: {
+    x: defaults.scales.x,
+    y: { ...defaults.scales.y, ticks: { color: '#b0b8c8', font: { family: 'Arial', size: 11 } } }
+  }
+});
+
+// C8 — line: ad frequency
+mk('c8', 'line', {
+  labels: M.weeks,
+  datasets: [{
+    label: 'Frequency',
+    data: M.frequency,
+    borderColor: '#a8dadc',
+    backgroundColor: '#a8dadc22',
+    borderWidth: 2.5,
+    fill: true,
+    tension: 0.4,
+    pointRadius: 2
+  }]
+}, {
+  plugins: { legend: { display: false } },
+  scales: { x: defaults.scales.x, y: defaults.scales.y }
+});
+</script>
+</body>
+</html>
