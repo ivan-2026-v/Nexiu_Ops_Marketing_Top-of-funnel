@@ -161,18 +161,18 @@
   <!-- ROW 1 -->
   <div class="chart-grid grid-3">
     <div class="chart-card">
-      <h2>Weekly Lead Volume by Outcome</h2>
-      <p>Stacked by final state — Weeks 6–21</p>
+      <h2>#1 &nbsp;Weekly Lead Volume by Outcome</h2>
+      <p>Stacked by final state — Weeks 6–22</p>
       <div class="chart-wrap"><canvas id="c1"></canvas></div>
     </div>
     <div class="chart-card">
-      <h2>Weekly Conversion Rate</h2>
+      <h2>#2 &nbsp;Weekly Conversion Rate</h2>
       <p>% of incoming leads reaching "completed" state</p>
       <div class="chart-wrap"><canvas id="c2"></canvas></div>
     </div>
     <div class="chart-card">
-      <h2>Lead State Distribution</h2>
-      <p>All-time breakdown across all 39k leads</p>
+      <h2>#3 &nbsp;WApp Conversations vs Cost / Conversation</h2>
+      <p>Bars = weekly conversations (left) &nbsp;·&nbsp; Line = USD cost per conversation (right)</p>
       <div class="chart-wrap"><canvas id="c3"></canvas></div>
     </div>
   </div>
@@ -180,33 +180,38 @@
   <!-- ROW 2 -->
   <div class="chart-grid grid-3">
     <div class="chart-card">
-      <h2>Meta Ads Weekly Spend (USD)</h2>
-      <p>Budget deployed per week across campaign</p>
+      <h2>#4 &nbsp;Follow-up Recovery: Rate vs Absolute</h2>
+      <p>Bars = candidates recovered (left) &nbsp;·&nbsp; Line = recovery rate % (right)</p>
       <div class="chart-wrap"><canvas id="c4"></canvas></div>
     </div>
     <div class="chart-card">
-      <h2>Meta Ads: Reach vs Impressions</h2>
+      <h2>#5 &nbsp;Meta Ads: Reach vs Impressions</h2>
       <p>Unique reach vs total impression volume per week</p>
       <div class="chart-wrap"><canvas id="c5"></canvas></div>
     </div>
     <div class="chart-card">
-      <h2>Follow-up Recovery Rate</h2>
-      <p>% of followed-up leads who re-engaged, by week</p>
+      <h2>#6 &nbsp;Lead State Distribution</h2>
+      <p>All-time breakdown across all 44k leads</p>
       <div class="chart-wrap"><canvas id="c6"></canvas></div>
     </div>
   </div>
 
   <!-- ROW 3 -->
-  <div class="chart-grid grid-2">
+  <div class="chart-grid grid-3">
     <div class="chart-card">
-      <h2>Lead Drop-off by Funnel State</h2>
+      <h2>#7 &nbsp;Lead Drop-off by Funnel State</h2>
       <p>Where candidates abandoned before completing</p>
-      <div class="chart-wrap" style="min-height:180px"><canvas id="c7"></canvas></div>
+      <div class="chart-wrap" style="min-height:200px"><canvas id="c7"></canvas></div>
     </div>
     <div class="chart-card">
-      <h2>Meta Ads: Ad Frequency by Week</h2>
+      <h2>#8 &nbsp;Meta Ads Weekly Spend (USD)</h2>
+      <p>Budget deployed per week across campaign</p>
+      <div class="chart-wrap" style="min-height:200px"><canvas id="c8"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h2>#9 &nbsp;Meta Ads: Ad Frequency by Week</h2>
       <p>Avg impressions per unique user reached</p>
-      <div class="chart-wrap" style="min-height:180px"><canvas id="c8"></canvas></div>
+      <div class="chart-wrap" style="min-height:200px"><canvas id="c9"></canvas></div>
     </div>
   </div>
 
@@ -289,38 +294,90 @@ mk('c2', 'line', {
   }
 });
 
-// C3 — doughnut: state dist
-mk('c3', 'doughnut', {
-  labels: D.state_dist.labels,
-  datasets: [{
-    data: D.state_dist.values,
-    backgroundColor: ['#2ec4b6','#ff6b6b','#4e9af1','#a8dadc','#ffe66d','#f4a261','#e9c46a','#c77dff','#80b918','#adb5bd'],
-    borderWidth: 1,
-    borderColor: '#252d3d'
-  }]
-}, {
-  plugins: {
-    legend: { position: 'right', labels: { color: '#b0b8c8', font: { family: 'Arial', size: 10 }, boxWidth: 12 } },
-    tooltip: { ...defaults.plugins.tooltip, callbacks: {
-      label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} (${(ctx.parsed / D.kpis.total * 100).toFixed(1)}%)`
-    }}
+// C3 — dual axis: conversations (bar, left) + cost/conversation (line, right)
+const costPerConv = [5.68,1.73,1.5,1.03,0.59,0.31,0.27,0.22,0.37,0.29,0.42,0.38,0.46,0.57,0.62,0.7,0.16];
+new Chart(document.getElementById('c3'), {
+  type: 'bar',
+  data: {
+    labels: W.weeks,
+    datasets: [
+      {
+        label: 'Conversations',
+        data: W.total_leads,
+        backgroundColor: '#4e9af144',
+        borderColor: '#4e9af1',
+        borderWidth: 1.5,
+        borderRadius: 3,
+        yAxisID: 'y'
+      },
+      {
+        type: 'line',
+        label: 'Cost / Conversation (USD)',
+        data: costPerConv,
+        borderColor: '#ffe66d',
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#ffe66d',
+        yAxisID: 'y1'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
+    plugins: {
+      legend: { position: 'bottom', labels: { color: '#b0b8c8', font: { family: 'Arial', size: 10 } } },
+      tooltip: defaults.plugins.tooltip
+    },
+    scales: {
+      x: defaults.scales.x,
+      y: { ...defaults.scales.y, position: 'left', ticks: { ...defaults.scales.y.ticks, callback: v => (v/1000).toFixed(1)+'k' } },
+      y1: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#ffe66d', font: { family: 'Arial', size: 10 }, callback: v => '$'+v.toFixed(2) }, border: { color: '#ffffff10' } }
+    }
   }
 });
 
-// C4 — bar: meta spend
-mk('c4', 'bar', {
-  labels: M.weeks,
-  datasets: [{
-    label: 'Spend (USD)',
-    data: M.spend,
-    backgroundColor: '#ffe66d',
-    borderRadius: 3
-  }]
-}, {
-  plugins: { legend: { display: false } },
-  scales: {
-    x: defaults.scales.x,
-    y: { ...defaults.scales.y, ticks: { ...defaults.scales.y.ticks, callback: v => '$' + v.toLocaleString() } }
+// C4 — dual axis: recovered candidates (bar, left) + recovery rate (line, right)
+new Chart(document.getElementById('c4'), {
+  type: 'bar',
+  data: {
+    labels: W.weeks,
+    datasets: [
+      {
+        label: 'Candidates Recovered',
+        data: W.responded,
+        backgroundColor: '#2ec4b655',
+        borderColor: '#2ec4b6',
+        borderWidth: 1.5,
+        borderRadius: 3,
+        yAxisID: 'y'
+      },
+      {
+        type: 'line',
+        label: 'Recovery Rate (%)',
+        data: W.fu_rate,
+        borderColor: '#ff6b6b',
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#ff6b6b',
+        yAxisID: 'y1'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
+    plugins: {
+      legend: { position: 'bottom', labels: { color: '#b0b8c8', font: { family: 'Arial', size: 10 } } },
+      tooltip: defaults.plugins.tooltip
+    },
+    scales: {
+      x: defaults.scales.x,
+      y: { ...defaults.scales.y, position: 'left', ticks: { ...defaults.scales.y.ticks } },
+      y1: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#ff6b6b', font: { family: 'Arial', size: 10 }, callback: v => v+'%' }, border: { color: '#ffffff10' } }
+    }
   }
 });
 
@@ -339,24 +396,21 @@ mk('c5', 'line', {
   }
 });
 
-// C6 — line: followup recovery rate
-mk('c6', 'line', {
-  labels: W.weeks,
+// C6 — doughnut: state distribution
+mk('c6', 'doughnut', {
+  labels: D.state_dist.labels,
   datasets: [{
-    label: 'F/U Response Rate (%)',
-    data: W.fu_rate,
-    borderColor: '#2ec4b6',
-    backgroundColor: '#2ec4b622',
-    borderWidth: 2.5,
-    fill: true,
-    tension: 0.4,
-    pointRadius: 3
+    data: D.state_dist.values,
+    backgroundColor: ['#2ec4b6','#ff6b6b','#4e9af1','#a8dadc','#ffe66d','#f4a261','#e9c46a','#c77dff','#80b918','#adb5bd'],
+    borderWidth: 1,
+    borderColor: '#252d3d'
   }]
 }, {
-  plugins: { legend: { display: false } },
-  scales: {
-    x: defaults.scales.x,
-    y: { ...defaults.scales.y, ticks: { ...defaults.scales.y.ticks, callback: v => v + '%' } }
+  plugins: {
+    legend: { position: 'right', labels: { color: '#b0b8c8', font: { family: 'Arial', size: 10 }, boxWidth: 12 } },
+    tooltip: { ...defaults.plugins.tooltip, callbacks: {
+      label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} (${(ctx.parsed / D.kpis.total * 100).toFixed(1)}%)`
+    }}
   }
 });
 
@@ -378,8 +432,25 @@ mk('c7', 'bar', {
   }
 });
 
-// C8 — line: ad frequency
-mk('c8', 'line', {
+// C8 — bar: meta spend
+mk('c8', 'bar', {
+  labels: M.weeks,
+  datasets: [{
+    label: 'Spend (USD)',
+    data: M.spend,
+    backgroundColor: '#ffe66d',
+    borderRadius: 3
+  }]
+}, {
+  plugins: { legend: { display: false } },
+  scales: {
+    x: defaults.scales.x,
+    y: { ...defaults.scales.y, ticks: { ...defaults.scales.y.ticks, callback: v => '$' + v.toLocaleString() } }
+  }
+});
+
+// C9 — line: ad frequency
+mk('c9', 'line', {
   labels: M.weeks,
   datasets: [{
     label: 'Frequency',
